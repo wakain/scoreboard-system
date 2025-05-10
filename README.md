@@ -9,4 +9,4 @@ Controllable scoreboard for OBS Overlay (Soccer, Pool, Hockey etc)
 # Add to OBS
 - Add new browser
 - Set url to `http://localhost:3000/` for scoreboard
-- Set url to `http://localhost:3000/contol.html` for scoreboard controls
+- Set url to `http://localhost:3000/control.html` for scoreboard controls
