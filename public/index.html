@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Premier Lig Skorboard</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: transparent;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column; /* Sayfada dikey yerleşim */
+    }
+
+    .scoreboard-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      color: white;
+      padding: 10px 30px;
+      border-radius: 0px;
+      font-size: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      width: 100%; /* Genişlik tam sayfa olacak */
+      max-width: 300px; /* Maksimum genişlik belirle */
+      margin: 0 auto; /* Ortada hizalama */
+    }
+
+    .scoreboard {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%; /* İçerik de container'a uyum sağlasın */
+    }
+
+    .team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .team .accent-bar {
+      width: 60px;
+      height: 6px;
+      margin-bottom: 6px;
+      background-color: var(--accent-color, gray);
+    }
+
+    .team-short {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .score {
+      font-size: 28px;
+      font-weight: bold;
+      padding: 0 10px;
+    }
+
+    .timer {
+      background-color: red;
+      padding: 6px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 22px;
+      margin-top: -4px; /* Siyah kutuya tam yapışacak şekilde */
+      text-align: center; /* Ortada yerleşim */
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="scoreboard-container">
+    <div class="scoreboard">
+      <div class="team team1" style="--accent-color: #0057b8;">
+        <div class="accent-bar"></div>
+        <span class="team-short" id="team1">MCI</span>
+      </div>
+      <div class="score" id="score">0 - 0</div>
+      <div class="team team2" style="--accent-color: #da291c;">
+        <div class="accent-bar"></div>
+        <span class="team-short" id="team2">LIV</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sayaç burada, hemen skor kutusunun altına ve köşe yapıştırılacak şekilde yerleştirildi -->
+  <div class="timer" id="timer">00:00</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Dinamik güncelleme
+    socket.on('update', (state) => {
+      document.getElementById('team1').textContent = state.team1;
+      document.getElementById('team2').textContent = state.team2;
+      document.getElementById('score').textContent = state.score;
+      document.getElementById('timer').textContent = formatTime(state.timer);
+
+      // Renkleri güncelle
+      document.querySelector('.team1').style.setProperty('--accent-color', state.team1Color);
+      document.querySelector('.team2').style.setProperty('--accent-color', state.team2Color);
+    });
+
+    // Süreyi 00:00 formatına çevir
+    function formatTime(seconds) {
+      const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const sec = String(seconds % 60).padStart(2, '0');
+      return `${min}:${sec}`;
+    }
+  </script>
+</body>
+</html>

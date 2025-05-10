@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kontrol Paneli</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    button, input, select {
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+    }
+    button {
+      cursor: pointer;
+      background-color: #222;
+      color: white;
+    }
+    button:hover {
+      background-color: #444;
+    }
+    input[type="color"] {
+      padding: 3px;
+      height: 40px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Skorboard Kontrol Paneli</h1>
+
+  <div>
+    <button onclick="sendAction('start')">Başlat</button>
+    <button onclick="sendAction('pause')">Durdur</button>
+    <button onclick="sendAction('add30')">+30s</button>
+    <button onclick="sendAction('add60')">+1dk</button>
+    <button onclick="sendAction('reset')">Sıfırla</button> <!-- Sayacı sıfırlamak için eklenen buton -->
+  </div>
+
+  <div>
+    <label>Başlangıç Zamanı (Dakika:Saniye):</label>
+    <input type="text" id="start-time" placeholder="5:31" oninput="updateStartTime(this.value)">
+  </div>
+
+  <div>
+    <label>Takım 1 Kısaltma:</label>
+    <input type="text" id="team1" placeholder="MCI" oninput="updateTeam('team1', this.value)">
+
+    <label>Takım 2 Kısaltma:</label>
+    <input type="text" id="team2" placeholder="LIV" oninput="updateTeam('team2', this.value)">
+
+    <label>Skor:</label>
+    <input type="text" id="score" placeholder="2 - 1" oninput="updateScore(this.value)">
+
+    <label>Takım 1 Renk:</label>
+    <input type="color" id="color1" onchange="updateColor('team1', this.value)">
+
+    <label>Takım 2 Renk:</label>
+    <input type="color" id="color2" onchange="updateColor('team2', this.value)">
+  </div>
+
+  <div>
+    <h3>Skor Güncellemeleri</h3>
+    <button onclick="changeScore('team1', 'increment')">Takım 1 +1</button>
+    <button onclick="changeScore('team1', 'decrement')">Takım 1 -1</button>
+    <button onclick="changeScore('team2', 'increment')">Takım 2 +1</button>
+    <button onclick="changeScore('team2', 'decrement')">Takım 2 -1</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Socket.io üzerinden güncellenmiş verileri al
+    socket.on('update', (state) => {
+      document.getElementById('team1').value = state.team1;
+      document.getElementById('team2').value = state.team2;
+      document.getElementById('score').value = state.score;
+      document.getElementById('color1').value = state.color1;
+      document.getElementById('color2').value = state.color2;
+    });
+
+    function sendAction(action) {
+      fetch(`/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+    }
+
+    function updateTeam(team, value) {
+      fetch(`/update-team`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ team, value })
+      });
+    }
+
+    function updateScore(value) {
+      fetch(`/update-score`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value })
+      });
+    }
+
+    function updateColor(team, color) {
+      fetch(`/update-color`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ team, color })
+      });
+    }
+
+    function updateStartTime(value) {
+      // Start time inputunu dakika ve saniye olarak ayırma
+      let [minutes, seconds] = value.split(':').map(num => parseInt(num));
+      if (!isNaN(minutes) && !isNaN(seconds)) {
+        fetch(`/update-start-time`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ minutes, seconds })
+        });
+      }
+    }
+
+    // Skoru artırma veya azaltma
+    function changeScore(team, action) {
+      fetch(`/change-score`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ team, action })
+      });
+    }
+  </script>
+</body>
+</html>
