@@ -3,6 +3,7 @@ Controllable scoreboard for OBS Overlay (Soccer, Pool, Hockey etc)
 
 # Install
 - `download the file`
+- `open cmd in the folder`
 - `npm i socket.io electron`
 - `npm start`
 
